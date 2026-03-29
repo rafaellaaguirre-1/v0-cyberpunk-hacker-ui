@@ -395,6 +395,16 @@ Hora: ${hora}
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] relative overflow-x-hidden">
+      {/* Background GIF */}
+      <div className="fixed inset-0 z-0">
+        <img 
+          src="https://giffiles.alphacoders.com/360/36005.gif" 
+          alt="" 
+          className="w-full h-full object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-[#0a0a0a]/70" />
+      </div>
+      
       <HudOverlay />
       
       {/* Corner GIFs */}
@@ -472,17 +482,17 @@ Hora: ${hora}
               <span className="text-[10px] text-[#4a9f5a] tracking-widest">TIEMPO_RESTANTE</span>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8" suppressHydrationWarning>
               {[
-                { label: "DÍAS", key: "days" },
-                { label: "HORAS", key: "hours" },
-                { label: "MIN", key: "minutes" },
-                { label: "SEG", key: "seconds" },
+                { label: "DÍAS", value: mounted ? timeRemaining.days : null },
+                { label: "HORAS", value: mounted ? timeRemaining.hours : null },
+                { label: "MIN", value: mounted ? timeRemaining.minutes : null },
+                { label: "SEG", value: mounted ? timeRemaining.seconds : null },
               ].map((item) => (
-                <div key={item.label} className="text-center">
-                  <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]">
+                <div key={item.label} className="text-center" suppressHydrationWarning>
+                  <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]" suppressHydrationWarning>
                     <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono" suppressHydrationWarning>
-                      {mounted ? String(timeRemaining[item.key as keyof typeof timeRemaining]).padStart(2, "0") : "--"}
+                      {item.value !== null ? String(item.value).padStart(2, "0") : "--"}
                     </div>
                   </div>
                   <div className="text-[8px] text-[#4a9f5a] mt-1 tracking-widest">{item.label}</div>
