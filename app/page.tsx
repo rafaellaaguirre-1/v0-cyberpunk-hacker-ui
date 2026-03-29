@@ -270,8 +270,8 @@ export default function RegistrationPage() {
       }
 
       await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || '',
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || '',
+        'service_8g1h7y2',
+        'template_XXXXXXX', // TODO: Replace with your EmailJS Template ID
         templateParams
       )
 
