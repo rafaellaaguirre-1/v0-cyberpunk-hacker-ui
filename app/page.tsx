@@ -3,6 +3,7 @@
 // EmailJS is loaded dynamically to avoid SSR issues
 import { useState, useEffect, useCallback, useRef } from "react"
 import { HudOverlay } from "@/components/hud-overlay"
+import { CountdownTimer } from "@/components/countdown-timer"
 import { CyberInput } from "@/components/cyber-input"
 import { Plus, Trash2, Send, AlertTriangle, Instagram, CheckCircle, XCircle } from "lucide-react"
 import { formatRut, validateRut, validateInstitutionalEmail } from "@/lib/rut-utils"
@@ -31,8 +32,6 @@ interface FormErrors {
 type NotificationType = 'success' | 'error' | null
 
 export default function RegistrationPage() {
-  const [mounted, setMounted] = useState(false)
-  const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [additionalMembers, setAdditionalMembers] = useState<AdditionalMember[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [notification, setNotification] = useState<{ type: NotificationType; message: string } | null>(null)
@@ -52,37 +51,6 @@ export default function RegistrationPage() {
   })
 
   const targetDate = new Date("2026-04-17T23:59:59")
-  
-  const getTimeRemaining = () => {
-    if (!currentTime) {
-      return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: false }
-    }
-    const now = currentTime.getTime()
-    const total = targetDate.getTime() - now
-    
-    if (total <= 0) {
-      return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: true }
-    }
-    
-    return {
-      days: Math.floor(total / (1000 * 60 * 60 * 24)),
-      hours: Math.floor((total / (1000 * 60 * 60)) % 24),
-      minutes: Math.floor((total / 1000 / 60) % 60),
-      seconds: Math.floor((total / 1000) % 60),
-      expired: false
-    }
-  }
-
-  const timeRemaining = getTimeRemaining()
-
-  useEffect(() => {
-    setMounted(true)
-    setCurrentTime(new Date())
-    const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   // Auto-hide notification after 5 seconds
   useEffect(() => {
@@ -407,20 +375,6 @@ Hora: ${hora}
       
       <HudOverlay />
       
-      {/* Corner GIFs */}
-      <div className="fixed top-0 left-0 w-24 h-24 md:w-32 md:h-32 z-20 pointer-events-none">
-        <img src="https://giffiles.alphacoders.com/360/36005.gif" alt="" className="w-full h-full object-cover opacity-70" />
-      </div>
-      <div className="fixed top-0 right-0 w-24 h-24 md:w-32 md:h-32 z-20 pointer-events-none">
-        <img src="https://giffiles.alphacoders.com/360/36005.gif" alt="" className="w-full h-full object-cover opacity-70 scale-x-[-1]" />
-      </div>
-      <div className="fixed bottom-0 left-0 w-24 h-24 md:w-32 md:h-32 z-20 pointer-events-none">
-        <img src="https://giffiles.alphacoders.com/360/36005.gif" alt="" className="w-full h-full object-cover opacity-70 scale-y-[-1]" />
-      </div>
-      <div className="fixed bottom-0 right-0 w-24 h-24 md:w-32 md:h-32 z-20 pointer-events-none">
-        <img src="https://giffiles.alphacoders.com/360/36005.gif" alt="" className="w-full h-full object-cover opacity-70 scale-[-1]" />
-      </div>
-      
       {/* Notification */}
       {notification && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-4 border ${
@@ -482,32 +436,7 @@ Hora: ${hora}
               <span className="text-[10px] text-[#4a9f5a] tracking-widest">TIEMPO_RESTANTE</span>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8" suppressHydrationWarning>
-              {[
-                { label: "DÍAS", value: mounted ? timeRemaining.days : null },
-                { label: "HORAS", value: mounted ? timeRemaining.hours : null },
-                { label: "MIN", value: mounted ? timeRemaining.minutes : null },
-                { label: "SEG", value: mounted ? timeRemaining.seconds : null },
-              ].map((item) => (
-                <div key={item.label} className="text-center" suppressHydrationWarning>
-                  <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]" suppressHydrationWarning>
-                    <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono" suppressHydrationWarning>
-                      {item.value !== null ? String(item.value).padStart(2, "0") : "--"}
-                    </div>
-                  </div>
-                  <div className="text-[8px] text-[#4a9f5a] mt-1 tracking-widest">{item.label}</div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="text-center mt-4 text-xs text-[#4a9f5a]" suppressHydrationWarning>
-              <span className="text-[#00ff4150]">{'<time>'}</span>
-              {mounted && currentTime ? currentTime.toLocaleString("es-CL", {
-                dateStyle: "full",
-                timeStyle: "medium"
-              }) : "Cargando..."}
-              <span className="text-[#00ff4150]">{'</time>'}</span>
-            </div>
+            <CountdownTimer targetDate={targetDate} />
             
             <div className="text-center mt-2 text-[10px] text-[#4a9f5a]">
               Período de inscripción: 01 Abril - 17 Abril, 2026
