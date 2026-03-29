@@ -9,6 +9,7 @@ import { formatRut, validateRut, validateInstitutionalEmail } from "@/lib/rut-ut
 
 interface AdditionalMember {
   id: string
+  nombre: string
   position: string
   rut: string
   email: string
@@ -24,7 +25,7 @@ interface FormErrors {
   presidente: { nombre?: string; rut?: string; email?: string }
   vicepresidente: { nombre?: string; rut?: string; email?: string }
   secretario: { nombre?: string; rut?: string; email?: string }
-  additionalMembers: { [key: string]: { position?: string; rut?: string; email?: string } }
+  additionalMembers: { [key: string]: { nombre?: string; position?: string; rut?: string; email?: string } }
 }
 
 type NotificationType = 'success' | 'error' | null
@@ -100,7 +101,7 @@ export default function RegistrationPage() {
     if (additionalMembers.length < 4) {
       setAdditionalMembers([
         ...additionalMembers,
-        { id: crypto.randomUUID(), position: "", rut: "", email: "" }
+        { id: crypto.randomUUID(), nombre: "", position: "", rut: "", email: "" }
       ])
     }
   }
@@ -196,7 +197,13 @@ export default function RegistrationPage() {
     for (const member of additionalMembers) {
       newErrors.additionalMembers[member.id] = {}
       
-      if (member.position || member.rut || member.email) {
+      if (member.nombre || member.position || member.rut || member.email) {
+        const nombreError = validateField('additional', 'nombre', member.nombre)
+        if (nombreError) {
+          newErrors.additionalMembers[member.id].nombre = nombreError
+          isValid = false
+        }
+        
         const positionError = validateField('additional', 'position', member.position)
         if (positionError) {
           newErrors.additionalMembers[member.id].position = positionError
@@ -247,9 +254,10 @@ export default function RegistrationPage() {
     if (additionalMembers.length > 0) {
       content += `INTEGRANTES ADICIONALES:\n`
       additionalMembers.forEach((member, index) => {
-        if (member.position || member.rut || member.email) {
+        if (member.nombre || member.position || member.rut || member.email) {
           content += `\nIntegrante ${index + 1}:\n`
           content += `- Rol: ${member.position}\n`
+          content += `- Nombre: ${member.nombre}\n`
           content += `- RUT: ${member.rut}\n`
           content += `- Correo: ${member.email}\n`
         }
@@ -283,9 +291,10 @@ export default function RegistrationPage() {
       let integrantes_adicionales = ''
       if (additionalMembers.length > 0) {
         additionalMembers.forEach((member, index) => {
-          if (member.position || member.rut || member.email) {
+          if (member.nombre || member.position || member.rut || member.email) {
             integrantes_adicionales += `Integrante ${index + 1}:\n`
             integrantes_adicionales += `- Rol: ${member.position}\n`
+            integrantes_adicionales += `- Nombre: ${member.nombre}\n`
             integrantes_adicionales += `- RUT: ${member.rut}\n`
             integrantes_adicionales += `- Correo: ${member.email}\n\n`
           }
@@ -606,6 +615,13 @@ Hora: ${hora}
                         value={member.position}
                         onChange={(e) => updateMember(member.id, "position", e.target.value)}
                         error={errors.additionalMembers[member.id]?.position}
+                      />
+                      <CyberInput
+                        label="Nombre y Apellido"
+                        placeholder="Ingrese nombre completo"
+                        value={member.nombre}
+                        onChange={(e) => updateMember(member.id, "nombre", e.target.value)}
+                        error={errors.additionalMembers[member.id]?.nombre}
                       />
                       <div className="grid md:grid-cols-2 gap-4">
                         <CyberInput
