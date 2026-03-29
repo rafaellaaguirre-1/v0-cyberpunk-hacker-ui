@@ -1,5 +1,6 @@
 "use client"
 
+// EmailJS is loaded dynamically to avoid SSR issues
 import { useState, useEffect, useCallback, useRef } from "react"
 import { HudOverlay } from "@/components/hud-overlay"
 import { CyberInput } from "@/components/cyber-input"
@@ -349,7 +350,7 @@ Hora: ${hora}
       
       await emailjsRef.current.default.send(
         'service_8g1h7y2',
-        'template_XXXXXXX', // TODO: Replace with your EmailJS Template ID
+        'template_a8wstg2',
         templateParams
       )
 
