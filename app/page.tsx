@@ -264,7 +264,7 @@ export default function RegistrationPage() {
 
     try {
       const templateParams = {
-        to_emails: 'raguirreo@miucsh.cl,aegonzalezb2@miucsh.cl,ajpavez@miucsh.cl,rtenorio@miucsh.cl',
+        to_email: 'tricel.icc.2026@gmail.com',
         subject: 'Nueva inscripción de candidatura',
         message: formatEmailContent(),
       }
