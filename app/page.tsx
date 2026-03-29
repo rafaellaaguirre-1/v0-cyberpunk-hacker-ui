@@ -32,7 +32,7 @@ type NotificationType = 'success' | 'error' | null
 
 export default function RegistrationPage() {
   const [mounted, setMounted] = useState(false)
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [additionalMembers, setAdditionalMembers] = useState<AdditionalMember[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [notification, setNotification] = useState<{ type: NotificationType; message: string } | null>(null)
@@ -54,6 +54,9 @@ export default function RegistrationPage() {
   const targetDate = new Date("2026-04-17T23:59:59")
   
   const getTimeRemaining = () => {
+    if (!currentTime) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: false }
+    }
     const now = currentTime.getTime()
     const total = targetDate.getTime() - now
     
@@ -74,6 +77,7 @@ export default function RegistrationPage() {
 
   useEffect(() => {
     setMounted(true)
+    setCurrentTime(new Date())
     const timer = setInterval(() => {
       setCurrentTime(new Date())
     }, 1000)
@@ -257,7 +261,7 @@ export default function RegistrationPage() {
       content += `INTEGRANTES ADICIONALES:\n`
       additionalMembers.forEach((member, index) => {
         if (member.nombre || member.position || member.rut || member.email) {
-          content += `\nIntegrante ${index + 1}:\n`
+          content += `\nIntegrante Adicional ${index + 1}:\n`
           content += `- Nombre: ${member.nombre}\n`
           content += `- Rol: ${member.position}\n`
           content += `- RUT: ${member.rut}\n`
@@ -294,7 +298,7 @@ export default function RegistrationPage() {
       if (additionalMembers.length > 0) {
         additionalMembers.forEach((member, index) => {
           if (member.nombre || member.position || member.rut || member.email) {
-            integrantes_adicionales += `Integrante ${index + 1}:\n`
+            integrantes_adicionales += `Integrante Adicional ${index + 1}:\n`
             integrantes_adicionales += `- Nombre: ${member.nombre}\n`
             integrantes_adicionales += `- Rol: ${member.position}\n`
             integrantes_adicionales += `- RUT: ${member.rut}\n`
@@ -474,7 +478,7 @@ Hora: ${hora}
             
             <div className="text-center mt-4 text-xs text-[#4a9f5a]" suppressHydrationWarning>
               <span className="text-[#00ff4150]">{'<time>'}</span>
-              {mounted ? currentTime.toLocaleString("es-CL", {
+              {mounted && currentTime ? currentTime.toLocaleString("es-CL", {
                 dateStyle: "full",
                 timeStyle: "medium"
               }) : "Cargando..."}
