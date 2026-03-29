@@ -366,7 +366,7 @@ Hora: ${hora}
       {/* Background GIF */}
       <div className="fixed inset-0 z-0">
         <img 
-          src="https://giffiles.alphacoders.com/360/36005.gif" 
+          src="/images/background.gif" 
           alt="" 
           className="w-full h-full object-cover opacity-30"
         />

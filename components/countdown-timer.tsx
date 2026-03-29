@@ -6,13 +6,10 @@ interface CountdownTimerProps {
   targetDate: Date
 }
 
-export function CountdownTimer({ targetDate }: CountdownTimerProps) {
-  const [mounted, setMounted] = useState(false)
-  const [currentTime, setCurrentTime] = useState<Date | null>(null)
+function CountdownDisplay({ targetDate }: CountdownTimerProps) {
+  const [currentTime, setCurrentTime] = useState(new Date())
 
   useEffect(() => {
-    setMounted(true)
-    setCurrentTime(new Date())
     const timer = setInterval(() => {
       setCurrentTime(new Date())
     }, 1000)
@@ -20,9 +17,6 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
   }, [])
 
   const getTimeRemaining = () => {
-    if (!currentTime) {
-      return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: false }
-    }
     const now = currentTime.getTime()
     const total = targetDate.getTime() - now
     
@@ -40,32 +34,6 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
   }
 
   const timeRemaining = getTimeRemaining()
-
-  // Render placeholder on server and before mount
-  if (!mounted) {
-    return (
-      <>
-        <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-          {["DÍAS", "HORAS", "MIN", "SEG"].map((label) => (
-            <div key={label} className="text-center">
-              <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]">
-                <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono">
-                  --
-                </div>
-              </div>
-              <div className="text-[8px] text-[#4a9f5a] mt-1 tracking-widest">{label}</div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="text-center mt-4 text-xs text-[#4a9f5a]">
-          <span className="text-[#00ff4150]">{'<time>'}</span>
-          Cargando...
-          <span className="text-[#00ff4150]">{'</time>'}</span>
-        </div>
-      </>
-    )
-  }
 
   return (
     <>
@@ -89,7 +57,7 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
       
       <div className="text-center mt-4 text-xs text-[#4a9f5a]">
         <span className="text-[#00ff4150]">{'<time>'}</span>
-        {currentTime?.toLocaleString("es-CL", {
+        {currentTime.toLocaleString("es-CL", {
           dateStyle: "full",
           timeStyle: "medium"
         })}
@@ -97,4 +65,43 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
       </div>
     </>
   )
+}
+
+function CountdownPlaceholder() {
+  return (
+    <>
+      <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+        {["DÍAS", "HORAS", "MIN", "SEG"].map((label) => (
+          <div key={label} className="text-center">
+            <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]">
+              <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono">
+                --
+              </div>
+            </div>
+            <div className="text-[8px] text-[#4a9f5a] mt-1 tracking-widest">{label}</div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="text-center mt-4 text-xs text-[#4a9f5a]">
+        <span className="text-[#00ff4150]">{'<time>'}</span>
+        Cargando...
+        <span className="text-[#00ff4150]">{'</time>'}</span>
+      </div>
+    </>
+  )
+}
+
+export function CountdownTimer({ targetDate }: CountdownTimerProps) {
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  if (!isClient) {
+    return <CountdownPlaceholder />
+  }
+
+  return <CountdownDisplay targetDate={targetDate} />
 }
