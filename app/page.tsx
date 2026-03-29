@@ -458,14 +458,14 @@ Hora: ${hora}
               <span className="text-[10px] text-[#4a9f5a] tracking-widest">TIEMPO_RESTANTE</span>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8" suppressHydrationWarning>
               {[
-                { label: "DÍAS", value: timeRemaining.days },
-                { label: "HORAS", value: timeRemaining.hours },
-                { label: "MIN", value: timeRemaining.minutes },
-                { label: "SEG", value: timeRemaining.seconds },
+                { label: "DÍAS", value: mounted ? timeRemaining.days : 0 },
+                { label: "HORAS", value: mounted ? timeRemaining.hours : 0 },
+                { label: "MIN", value: mounted ? timeRemaining.minutes : 0 },
+                { label: "SEG", value: mounted ? timeRemaining.seconds : 0 },
               ].map((item) => (
-                <div key={item.label} className="text-center">
+                <div key={item.label} className="text-center" suppressHydrationWarning>
                   <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]">
                     <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono" suppressHydrationWarning>
                       {mounted ? String(item.value).padStart(2, "0") : "--"}

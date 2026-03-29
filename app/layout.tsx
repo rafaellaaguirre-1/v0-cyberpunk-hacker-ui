@@ -15,8 +15,8 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: 'NEXUS // TERMINAL',
-  description: 'Secure Access Portal - Authorization Required',
+  title: 'Formulario Listas ICCI UCSH',
+  description: 'Formulario de Inscripción de Listas - Ingeniería Civil en Computación e Informática - UCSH',
   generator: 'v0.app',
   icons: {
     icon: [
