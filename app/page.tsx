@@ -2,44 +2,42 @@
 
 // EmailJS is loaded dynamically to avoid SSR issues
 import { useState, useEffect, useCallback, useRef } from "react"
-import dynamic from "next/dynamic"
 import { HudOverlay } from "@/components/hud-overlay"
 import { CyberInput } from "@/components/cyber-input"
+import { ClientOnly } from "@/components/client-only"
+import CountdownTimer from "@/components/countdown-timer"
 import { Plus, Trash2, Send, AlertTriangle, Instagram, CheckCircle, XCircle } from "lucide-react"
 import { formatRut, validateRut, validateInstitutionalEmail } from "@/lib/rut-utils"
 
-// Dynamic import with SSR disabled to avoid hydration issues with time
-const CountdownTimer = dynamic(() => import("@/components/countdown-timer"), {
-  ssr: false,
-  loading: () => (
-    <section className="mb-8">
-      <div className="border border-[#00ff4133] bg-[#0d1117] p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-2 h-2 bg-[#00ff41] animate-pulse" />
-          <span className="text-[10px] text-[#4a9f5a] tracking-widest">TIEMPO_RESTANTE</span>
-        </div>
-        <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-          {["DÍAS", "HORAS", "MIN", "SEG"].map((label) => (
-            <div key={label} className="text-center">
-              <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]">
-                <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono">--</div>
-              </div>
-              <div className="text-[8px] text-[#4a9f5a] mt-1 tracking-widest">{label}</div>
-            </div>
-          ))}
-        </div>
-        <div className="text-center mt-4 text-xs text-[#4a9f5a]">
-          <span className="text-[#00ff4150]">{"<time>"}</span>
-          Cargando...
-          <span className="text-[#00ff4150]">{"</time>"}</span>
-        </div>
-        <div className="text-center mt-2 text-[10px] text-[#4a9f5a]">
-          Período de inscripción: 01 Abril - 17 Abril, 2026
-        </div>
+// Fallback component for SSR
+const CountdownFallback = () => (
+  <section className="mb-8">
+    <div className="border border-[#00ff4133] bg-[#0d1117] p-4">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-2 h-2 bg-[#00ff41] animate-pulse" />
+        <span className="text-[10px] text-[#4a9f5a] tracking-widest">TIEMPO_RESTANTE</span>
       </div>
-    </section>
-  ),
-})
+      <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+        {["DÍAS", "HORAS", "MIN", "SEG"].map((label) => (
+          <div key={label} className="text-center">
+            <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]">
+              <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono">--</div>
+            </div>
+            <div className="text-[8px] text-[#4a9f5a] mt-1 tracking-widest">{label}</div>
+          </div>
+        ))}
+      </div>
+      <div className="text-center mt-4 text-xs text-[#4a9f5a]">
+        <span className="text-[#00ff4150]">{"<time>"}</span>
+        Cargando...
+        <span className="text-[#00ff4150]">{"</time>"}</span>
+      </div>
+      <div className="text-center mt-2 text-[10px] text-[#4a9f5a]">
+        Período de inscripción: 01 Abril - 17 Abril, 2026
+      </div>
+    </div>
+  </section>
+)
 
 interface AdditionalMember {
   id: string
@@ -453,8 +451,10 @@ Hora: ${hora}
           </div>
         </header>
 
-        {/* Countdown Timer - Dynamic import to avoid hydration issues */}
-        <CountdownTimer />
+        {/* Countdown Timer - Wrapped in ClientOnly to prevent hydration mismatch */}
+        <ClientOnly fallback={<CountdownFallback />}>
+          <CountdownTimer />
+        </ClientOnly>
 
         {/* Main Form */}
         <form onSubmit={handleSubmit}>
