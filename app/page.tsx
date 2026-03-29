@@ -86,7 +86,7 @@ export default function RegistrationPage() {
 
   // Initialize EmailJS
   useEffect(() => {
-    emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || '')
+    emailjs.init('tiNAxu8G106cDsoCB')
   }, [])
 
   const addMember = () => {
