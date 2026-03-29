@@ -48,12 +48,6 @@ export default function CyberpunkUI() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
-      {/* Scanline overlay */}
-      <div className="fixed inset-0 bg-[linear-gradient(transparent_50%,rgba(0,255,65,0.02)_50%)] bg-[length:100%_4px] pointer-events-none z-50" />
-      
-      {/* CRT flicker effect */}
-      <div className="fixed inset-0 pointer-events-none z-50 animate-flicker opacity-[0.02] bg-[#00ff41]" />
-      
       <HudOverlay />
       
       <div className="relative z-10 p-4 lg:p-6">
