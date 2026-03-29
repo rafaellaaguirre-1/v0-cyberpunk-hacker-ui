@@ -397,6 +397,20 @@ Hora: ${hora}
     <main className="min-h-screen bg-[#0a0a0a] relative overflow-x-hidden">
       <HudOverlay />
       
+      {/* Corner GIFs */}
+      <div className="fixed top-0 left-0 w-24 h-24 md:w-32 md:h-32 z-20 pointer-events-none">
+        <img src="https://giffiles.alphacoders.com/360/36005.gif" alt="" className="w-full h-full object-cover opacity-70" />
+      </div>
+      <div className="fixed top-0 right-0 w-24 h-24 md:w-32 md:h-32 z-20 pointer-events-none">
+        <img src="https://giffiles.alphacoders.com/360/36005.gif" alt="" className="w-full h-full object-cover opacity-70 scale-x-[-1]" />
+      </div>
+      <div className="fixed bottom-0 left-0 w-24 h-24 md:w-32 md:h-32 z-20 pointer-events-none">
+        <img src="https://giffiles.alphacoders.com/360/36005.gif" alt="" className="w-full h-full object-cover opacity-70 scale-y-[-1]" />
+      </div>
+      <div className="fixed bottom-0 right-0 w-24 h-24 md:w-32 md:h-32 z-20 pointer-events-none">
+        <img src="https://giffiles.alphacoders.com/360/36005.gif" alt="" className="w-full h-full object-cover opacity-70 scale-[-1]" />
+      </div>
+      
       {/* Notification */}
       {notification && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-4 border ${
@@ -458,17 +472,17 @@ Hora: ${hora}
               <span className="text-[10px] text-[#4a9f5a] tracking-widest">TIEMPO_RESTANTE</span>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8" suppressHydrationWarning>
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
               {[
-                { label: "DÍAS", value: mounted ? timeRemaining.days : 0 },
-                { label: "HORAS", value: mounted ? timeRemaining.hours : 0 },
-                { label: "MIN", value: mounted ? timeRemaining.minutes : 0 },
-                { label: "SEG", value: mounted ? timeRemaining.seconds : 0 },
+                { label: "DÍAS", key: "days" },
+                { label: "HORAS", key: "hours" },
+                { label: "MIN", key: "minutes" },
+                { label: "SEG", key: "seconds" },
               ].map((item) => (
-                <div key={item.label} className="text-center" suppressHydrationWarning>
+                <div key={item.label} className="text-center">
                   <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]">
                     <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono" suppressHydrationWarning>
-                      {mounted ? String(item.value).padStart(2, "0") : "--"}
+                      {mounted ? String(timeRemaining[item.key as keyof typeof timeRemaining]).padStart(2, "0") : "--"}
                     </div>
                   </div>
                   <div className="text-[8px] text-[#4a9f5a] mt-1 tracking-widest">{item.label}</div>
