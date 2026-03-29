@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { HudOverlay } from "@/components/hud-overlay"
 import { CyberInput } from "@/components/cyber-input"
 import { Plus, Trash2, Send, AlertTriangle, Instagram, CheckCircle, XCircle } from "lucide-react"
 import { formatRut, validateRut, validateInstitutionalEmail } from "@/lib/rut-utils"
-import emailjs from '@emailjs/browser'
 
 interface AdditionalMember {
   id: string
@@ -36,6 +35,7 @@ export default function RegistrationPage() {
   const [notification, setNotification] = useState<{ type: NotificationType; message: string } | null>(null)
   
   const [formData, setFormData] = useState({
+    listaNombre: "",
     presidente: { nombre: "", rut: "", email: "" },
     vicepresidente: { nombre: "", rut: "", email: "" },
     secretario: { nombre: "", rut: "", email: "" },
@@ -84,9 +84,15 @@ export default function RegistrationPage() {
     }
   }, [notification])
 
-  // Initialize EmailJS
+  // EmailJS ref for dynamic import
+  const emailjsRef = useRef<typeof import('@emailjs/browser') | null>(null)
+
+  // Initialize EmailJS dynamically
   useEffect(() => {
-    emailjs.init('tiNAxu8G106cDsoCB')
+    import('@emailjs/browser').then((module) => {
+      emailjsRef.current = module
+      module.default.init('tiNAxu8G106cDsoCB')
+    })
   }, [])
 
   const addMember = () => {
@@ -153,10 +159,15 @@ export default function RegistrationPage() {
       additionalMembers: {}
     }
 
-    let isValid = true
+  let isValid = true
 
-    // Validate required members
-    const sections: (keyof typeof formData)[] = ['presidente', 'vicepresidente', 'secretario']
+  // Validate list name
+  if (!formData.listaNombre.trim()) {
+    isValid = false
+  }
+  
+  // Validate required members
+  const sections: (keyof typeof formData)[] = ['presidente', 'vicepresidente', 'secretario']
     
     for (const section of sections) {
       const data = formData[section]
@@ -263,13 +274,80 @@ export default function RegistrationPage() {
     setIsSubmitting(true)
 
     try {
-      const templateParams = {
-        to_email: 'tricel.icc.2026@gmail.com',
-        subject: 'Nueva inscripción de candidatura',
-        message: formatEmailContent(),
+      const now = new Date()
+      const fecha = now.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' })
+      const hora = now.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
+      
+      // Format additional members
+      let integrantes_adicionales = ''
+      if (additionalMembers.length > 0) {
+        additionalMembers.forEach((member, index) => {
+          if (member.position || member.rut || member.email) {
+            integrantes_adicionales += `Integrante ${index + 1}:\n`
+            integrantes_adicionales += `- Rol: ${member.position}\n`
+            integrantes_adicionales += `- RUT: ${member.rut}\n`
+            integrantes_adicionales += `- Correo: ${member.email}\n\n`
+          }
+        })
+      } else {
+        integrantes_adicionales = 'Sin integrantes adicionales'
       }
 
-      await emailjs.send(
+      // Create info_completa formatted string
+      const info_completa = `
+═══════════════════════════════════════
+   INSCRIPCIÓN DE CANDIDATURA TRICEL ICCI 2026
+═══════════════════════════════════════
+
+NOMBRE DE LISTA: ${formData.listaNombre || 'No especificado'}
+
+PRESIDENTE/A:
+- Nombre: ${formData.presidente.nombre}
+- RUT: ${formData.presidente.rut}
+- Correo: ${formData.presidente.email}
+
+VICEPRESIDENTE/A:
+- Nombre: ${formData.vicepresidente.nombre}
+- RUT: ${formData.vicepresidente.rut}
+- Correo: ${formData.vicepresidente.email}
+
+SECRETARIO/A:
+- Nombre: ${formData.secretario.nombre}
+- RUT: ${formData.secretario.rut}
+- Correo: ${formData.secretario.email}
+
+INTEGRANTES ADICIONALES:
+${integrantes_adicionales}
+
+═══════════════════════════════════════
+Fecha de inscripción: ${fecha}
+Hora: ${hora}
+═══════════════════════════════════════
+`
+
+      const templateParams = {
+        to_email: 'tricel.icc.2026@gmail.com',
+        lista_nombre: formData.listaNombre || 'No especificado',
+        presidente_nombre: formData.presidente.nombre,
+        presidente_rut: formData.presidente.rut,
+        presidente_email: formData.presidente.email,
+        vice_nombre: formData.vicepresidente.nombre,
+        vice_rut: formData.vicepresidente.rut,
+        vice_email: formData.vicepresidente.email,
+        secretario_nombre: formData.secretario.nombre,
+        secretario_rut: formData.secretario.rut,
+        secretario_email: formData.secretario.email,
+        integrantes_adicionales: integrantes_adicionales,
+        fecha: fecha,
+        hora: hora,
+        info_completa: info_completa,
+      }
+
+      if (!emailjsRef.current) {
+        throw new Error('EmailJS not initialized')
+      }
+      
+      await emailjsRef.current.default.send(
         'service_8g1h7y2',
         'template_XXXXXXX', // TODO: Replace with your EmailJS Template ID
         templateParams
@@ -277,8 +355,9 @@ export default function RegistrationPage() {
 
       setNotification({ type: 'success', message: 'Candidatura enviada correctamente' })
       
-      // Reset form
+      // Reset form completely - no data reuse between submissions
       setFormData({
+        listaNombre: "",
         presidente: { nombre: "", rut: "", email: "" },
         vicepresidente: { nombre: "", rut: "", email: "" },
         secretario: { nombre: "", rut: "", email: "" },
@@ -406,6 +485,29 @@ export default function RegistrationPage() {
             </h2>
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#00ff4150] to-transparent" />
           </div>
+
+          {/* List Name Section */}
+          <section className="mb-6">
+            <div className="border border-[#00ff4133] bg-[#0d1117] relative">
+              <div className="border-b border-[#00ff4133] px-4 py-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-4 bg-[#00ff41]" />
+                  <span className="text-sm text-[#00ff41] tracking-wider">NOMBRE DE LISTA</span>
+                  <span className="text-[8px] text-[#ff0040] border border-[#ff004050] px-1">REQUERIDO</span>
+                </div>
+                <div className="text-[10px] text-[#4a9f5a]">{'// módulo_lista'}</div>
+              </div>
+              <div className="p-4">
+                <CyberInput
+                  label="Nombre de la Lista"
+                  placeholder="Ingrese el nombre de su lista"
+                  value={formData.listaNombre}
+                  onChange={(e) => setFormData({ ...formData, listaNombre: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+          </section>
 
           {/* Required Members Sections */}
           {[
