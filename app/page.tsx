@@ -31,7 +31,8 @@ interface FormErrors {
 type NotificationType = 'success' | 'error' | null
 
 export default function RegistrationPage() {
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [mounted, setMounted] = useState(false)
+  const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [additionalMembers, setAdditionalMembers] = useState<AdditionalMember[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [notification, setNotification] = useState<{ type: NotificationType; message: string } | null>(null)
@@ -53,6 +54,9 @@ export default function RegistrationPage() {
   const targetDate = new Date("2026-04-17T23:59:59")
   
   const getTimeRemaining = () => {
+    if (!currentTime) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: false }
+    }
     const now = currentTime.getTime()
     const total = targetDate.getTime() - now
     
@@ -71,7 +75,10 @@ export default function RegistrationPage() {
 
   const timeRemaining = getTimeRemaining()
 
+  // Set mounted state and initialize time only on client
   useEffect(() => {
+    setMounted(true)
+    setCurrentTime(new Date())
     const timer = setInterval(() => {
       setCurrentTime(new Date())
     }, 1000)
@@ -416,13 +423,24 @@ Hora: ${hora}
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-8">
         {/* Header Section */}
         <header className="mb-8">
-          <div className="border border-[#00ff4133] bg-[#0d1117] p-6 relative">
-            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#00ff41]" />
-            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#00ff41]" />
-            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#00ff41]" />
-            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#00ff41]" />
+          <div className="border border-[#00ff4133] bg-[#0d1117] p-6 relative overflow-hidden">
+            {/* Matrix GIF Background */}
+            <div 
+              className="absolute inset-0 opacity-30 pointer-events-none"
+              style={{
+                backgroundImage: 'url(https://hebbkx1anhila5yf.public.blob.vercel-storage.com/McQI-QpEePgMzwkv9IFpmg8wS4hE2AwyRUW.gif)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0d1117]/70 via-[#0d1117]/50 to-[#0d1117]/70 pointer-events-none" />
             
-            <div className="text-center space-y-2">
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#00ff41] z-10" />
+            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#00ff41] z-10" />
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#00ff41] z-10" />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#00ff41] z-10" />
+            
+            <div className="text-center space-y-2 relative z-10">
               <div className="text-[10px] text-[#4a9f5a] tracking-[0.3em]">{'// SISTEMA DE REGISTRO //'}</div>
               <h1 className="text-xl md:text-2xl font-bold text-[#00ff41] neon-text tracking-wide">
                 Universidad Católica Silva Henríquez
@@ -457,17 +475,17 @@ Hora: ${hora}
                 { label: "DÍAS", value: timeRemaining.days },
                 { label: "HORAS", value: timeRemaining.hours },
                 { label: "MIN", value: timeRemaining.minutes },
-                { label: "SEG", value: timeRemaining.seconds },
-              ].map((item) => (
-                <div key={item.label} className="text-center">
-                  <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]">
-                    <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono">
-                      {String(item.value).padStart(2, "0")}
-                    </div>
-                  </div>
-                  <div className="text-[8px] text-[#4a9f5a] mt-1 tracking-widest">{item.label}</div>
-                </div>
-              ))}
+{ label: "SEG", value: timeRemaining.seconds },
+  ].map((item) => (
+  <div key={item.label} className="text-center">
+  <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]">
+  <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono">
+  {mounted ? String(item.value).padStart(2, "0") : "--"}
+  </div>
+  </div>
+  <div className="text-[8px] text-[#4a9f5a] mt-1 tracking-widest">{item.label}</div>
+  </div>
+  ))}
             </div>
             
             <div className="text-center mt-4 text-xs text-[#4a9f5a]">
