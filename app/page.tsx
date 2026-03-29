@@ -9,6 +9,7 @@ import { formatRut, validateRut, validateInstitutionalEmail } from "@/lib/rut-ut
 
 interface AdditionalMember {
   id: string
+  nombre: string
   position: string
   rut: string
   email: string
@@ -24,12 +25,13 @@ interface FormErrors {
   presidente: { nombre?: string; rut?: string; email?: string }
   vicepresidente: { nombre?: string; rut?: string; email?: string }
   secretario: { nombre?: string; rut?: string; email?: string }
-  additionalMembers: { [key: string]: { position?: string; rut?: string; email?: string } }
+  additionalMembers: { [key: string]: { nombre?: string; position?: string; rut?: string; email?: string } }
 }
 
 type NotificationType = 'success' | 'error' | null
 
 export default function RegistrationPage() {
+  const [mounted, setMounted] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [additionalMembers, setAdditionalMembers] = useState<AdditionalMember[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -71,6 +73,7 @@ export default function RegistrationPage() {
   const timeRemaining = getTimeRemaining()
 
   useEffect(() => {
+    setMounted(true)
     const timer = setInterval(() => {
       setCurrentTime(new Date())
     }, 1000)
@@ -100,7 +103,7 @@ export default function RegistrationPage() {
     if (additionalMembers.length < 4) {
       setAdditionalMembers([
         ...additionalMembers,
-        { id: crypto.randomUUID(), position: "", rut: "", email: "" }
+        { id: crypto.randomUUID(), nombre: "", position: "", rut: "", email: "" }
       ])
     }
   }
@@ -196,7 +199,13 @@ export default function RegistrationPage() {
     for (const member of additionalMembers) {
       newErrors.additionalMembers[member.id] = {}
       
-      if (member.position || member.rut || member.email) {
+      if (member.nombre || member.position || member.rut || member.email) {
+        const nombreError = validateField('additional', 'nombre', member.nombre)
+        if (nombreError) {
+          newErrors.additionalMembers[member.id].nombre = nombreError
+          isValid = false
+        }
+        
         const positionError = validateField('additional', 'position', member.position)
         if (positionError) {
           newErrors.additionalMembers[member.id].position = positionError
@@ -247,8 +256,9 @@ export default function RegistrationPage() {
     if (additionalMembers.length > 0) {
       content += `INTEGRANTES ADICIONALES:\n`
       additionalMembers.forEach((member, index) => {
-        if (member.position || member.rut || member.email) {
+        if (member.nombre || member.position || member.rut || member.email) {
           content += `\nIntegrante ${index + 1}:\n`
+          content += `- Nombre: ${member.nombre}\n`
           content += `- Rol: ${member.position}\n`
           content += `- RUT: ${member.rut}\n`
           content += `- Correo: ${member.email}\n`
@@ -283,8 +293,9 @@ export default function RegistrationPage() {
       let integrantes_adicionales = ''
       if (additionalMembers.length > 0) {
         additionalMembers.forEach((member, index) => {
-          if (member.position || member.rut || member.email) {
+          if (member.nombre || member.position || member.rut || member.email) {
             integrantes_adicionales += `Integrante ${index + 1}:\n`
+            integrantes_adicionales += `- Nombre: ${member.nombre}\n`
             integrantes_adicionales += `- Rol: ${member.position}\n`
             integrantes_adicionales += `- RUT: ${member.rut}\n`
             integrantes_adicionales += `- Correo: ${member.email}\n\n`
@@ -452,8 +463,8 @@ Hora: ${hora}
               ].map((item) => (
                 <div key={item.label} className="text-center">
                   <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]">
-                    <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono">
-                      {String(item.value).padStart(2, "0")}
+                    <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono" suppressHydrationWarning>
+                      {mounted ? String(item.value).padStart(2, "0") : "--"}
                     </div>
                   </div>
                   <div className="text-[8px] text-[#4a9f5a] mt-1 tracking-widest">{item.label}</div>
@@ -461,12 +472,12 @@ Hora: ${hora}
               ))}
             </div>
             
-            <div className="text-center mt-4 text-xs text-[#4a9f5a]">
+            <div className="text-center mt-4 text-xs text-[#4a9f5a]" suppressHydrationWarning>
               <span className="text-[#00ff4150]">{'<time>'}</span>
-              {currentTime.toLocaleString("es-CL", {
+              {mounted ? currentTime.toLocaleString("es-CL", {
                 dateStyle: "full",
                 timeStyle: "medium"
-              })}
+              }) : "Cargando..."}
               <span className="text-[#00ff4150]">{'</time>'}</span>
             </div>
             
@@ -600,6 +611,13 @@ Hora: ${hora}
                     </div>
                     
                     <div className="grid gap-4">
+                      <CyberInput
+                        label="Nombre y Apellido"
+                        placeholder="Ingrese nombre completo"
+                        value={member.nombre}
+                        onChange={(e) => updateMember(member.id, "nombre", e.target.value)}
+                        error={errors.additionalMembers[member.id]?.nombre}
+                      />
                       <CyberInput
                         label="Posición / Rol"
                         placeholder="Ej: Tesorero, Vocal, etc."
