@@ -82,7 +82,7 @@ Correo: ${member.email}`
   }
 }
 
-// Send registration email to tricel and president
+// Send registration email to tricel only
 export async function sendRegistrationEmail(
   data: RegistrationFormData
 ): Promise<{ success: boolean; error?: string }> {
@@ -95,43 +95,18 @@ export async function sendRegistrationEmail(
   }
 
   try {
-    const baseParams = formatEmailParams(data)
+    const templateParams = formatEmailParams(data)
+    templateParams.to_email = "tricel.icc.2026@gmail.com"
     
-    console.log("[v0] EmailJS - info_completa:", baseParams.info_completa)
-    
-    // Send to tricel
-    const tricelParams = {
-      ...baseParams,
-      to_email: "tricel.icc.2026@gmail.com",
-    }
-    
-    console.log("[v0] Sending to tricel...")
     await emailjsModule.default.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
-      tricelParams
+      templateParams
     )
-    console.log("[v0] Tricel email sent")
-    
-    // Send to president
-    if (data.president.email) {
-      const presidentParams = {
-        ...baseParams,
-        to_email: data.president.email,
-      }
-      
-      console.log("[v0] Sending to president:", data.president.email)
-      await emailjsModule.default.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        presidentParams
-      )
-      console.log("[v0] President email sent")
-    }
     
     return { success: true }
   } catch (error) {
-    console.error("[v0] EmailJS Failed:", error)
+    console.error("[EmailJS] Failed:", error)
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Error al enviar email" 
