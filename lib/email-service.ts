@@ -27,25 +27,50 @@ export async function initEmailJS(): Promise<boolean> {
 
 // Format form data for email template
 function formatEmailParams(data: RegistrationFormData): EmailTemplateParams {
-  const additionalMembersText = data.additionalMembers.length > 0
-    ? data.additionalMembers
-        .map((m, i) => `Integrante ${i + 1}: ${m.name} | Rol: ${m.role} | RUT: ${m.rut} | Email: ${m.email}`)
-        .join("\n")
-    : "Sin integrantes adicionales"
+  // Build the complete info string for {{info_completa}}
+  let infoCompleta = `Nombre de la Lista: ${data.listName}
+
+Presidente/a:
+Nombre: ${data.president.name}
+RUT: ${data.president.rut}
+Correo: ${data.president.email}
+
+Vicepresidente/a:
+Nombre: ${data.vicePresident.name}
+RUT: ${data.vicePresident.rut}
+Correo: ${data.vicePresident.email}
+
+Secretario/a:
+Nombre: ${data.secretary.name}
+RUT: ${data.secretary.rut}
+Correo: ${data.secretary.email}`
+
+  // Add additional members dynamically if present
+  if (data.additionalMembers.length > 0) {
+    infoCompleta += "\n\nMiembros adicionales:"
+    data.additionalMembers.forEach((member) => {
+      infoCompleta += `
+
+Rol: ${member.role}
+Nombre: ${member.name}
+RUT: ${member.rut}
+Correo: ${member.email}`
+    })
+  }
 
   return {
     to_email: RECIPIENT_EMAIL,
-    list_name: data.listName,
-    president_name: data.president.name,
-    president_rut: data.president.rut,
-    president_email: data.president.email,
-    vice_president_name: data.vicePresident.name,
-    vice_president_rut: data.vicePresident.rut,
-    vice_president_email: data.vicePresident.email,
-    secretary_name: data.secretary.name,
-    secretary_rut: data.secretary.rut,
-    secretary_email: data.secretary.email,
-    additional_members: additionalMembersText,
+    nombre_lista: data.listName,
+    info_completa: infoCompleta,
+    presidente_nombre: data.president.name,
+    presidente_rut: data.president.rut,
+    presidente_correo: data.president.email,
+    vicepresidente_nombre: data.vicePresident.name,
+    vicepresidente_rut: data.vicePresident.rut,
+    vicepresidente_correo: data.vicePresident.email,
+    secretario_nombre: data.secretary.name,
+    secretario_rut: data.secretary.rut,
+    secretario_correo: data.secretary.email,
     submission_date: new Date().toLocaleString("es-CL", {
       dateStyle: "full",
       timeStyle: "medium",

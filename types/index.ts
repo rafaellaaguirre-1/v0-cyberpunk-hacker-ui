@@ -28,19 +28,19 @@ export interface Notification {
   message: string
 }
 
-// Email template params
+// Email template params matching EmailJS template variables
 export interface EmailTemplateParams {
   to_email: string
-  list_name: string
-  president_name: string
-  president_rut: string
-  president_email: string
-  vice_president_name: string
-  vice_president_rut: string
-  vice_president_email: string
-  secretary_name: string
-  secretary_rut: string
-  secretary_email: string
-  additional_members: string
+  nombre_lista: string
+  info_completa: string
+  presidente_nombre: string
+  presidente_rut: string
+  presidente_correo: string
+  vicepresidente_nombre: string
+  vicepresidente_rut: string
+  vicepresidente_correo: string
+  secretario_nombre: string
+  secretario_rut: string
+  secretario_correo: string
   submission_date: string
 }
