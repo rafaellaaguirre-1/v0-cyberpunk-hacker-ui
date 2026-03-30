@@ -26,7 +26,7 @@ export async function initEmailJS(): Promise<boolean> {
 }
 
 // Format form data for email template
-function formatEmailParams(data: RegistrationFormData): Record<string, string> {
+function formatEmailParams(data: RegistrationFormData): EmailTemplateParams {
   // Build the complete info string for {{info_completa}}
   let infoCompleta = `Nombre de la Lista: ${data.listName}
 
@@ -58,15 +58,10 @@ Correo: ${member.email}`
     })
   }
 
-  // Return params matching EXACTLY the EmailJS template variables
   return {
-    // Primary recipient (tricel) and CC to president
-    to_email: "tricel.icc.2026@gmail.com",
-    presidente_email: data.president.email,
-    // Complete info block
-    info_completa: infoCompleta,
-    // Individual fields for flexibility
+    to_email: RECIPIENT_EMAIL,
     nombre_lista: data.listName,
+    info_completa: infoCompleta,
     presidente_nombre: data.president.name,
     presidente_rut: data.president.rut,
     presidente_correo: data.president.email,
@@ -98,23 +93,15 @@ export async function sendRegistrationEmail(
   try {
     const templateParams = formatEmailParams(data)
     
-    // Log for debugging - verify all params are being sent correctly
-    console.log("[v0] EmailJS sending with params:")
-    console.log("[v0] - to_email:", templateParams.to_email)
-    console.log("[v0] - presidente_email:", templateParams.presidente_email)
-    console.log("[v0] - info_completa length:", templateParams.info_completa?.length)
-    console.log("[v0] - Full info_completa:", templateParams.info_completa)
-    
     await emailjsModule.default.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
-      templateParams
+      templateParams as unknown as Record<string, unknown>
     )
     
-    console.log("[v0] Email sent successfully")
     return { success: true }
   } catch (error) {
-    console.error("[v0] EmailJS Failed to send:", error)
+    console.error("[EmailJS] Failed to send:", error)
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Error al enviar email" 
