@@ -60,8 +60,9 @@ Correo: ${member.email}`
 
   // Return params matching EXACTLY the EmailJS template variables
   return {
-    // Recipient - will be overridden when sending
-    to_email: "",
+    // Primary recipient (tricel) and CC to president
+    to_email: "tricel.icc.2026@gmail.com",
+    presidente_email: data.president.email,
     // Complete info block
     info_completa: infoCompleta,
     // Individual fields for flexibility
@@ -82,46 +83,41 @@ Correo: ${member.email}`
   }
 }
 
-// Send registration email to tricel only
+// Send registration email
 export async function sendRegistrationEmail(
   data: RegistrationFormData
 ): Promise<{ success: boolean; error?: string }> {
-  console.log("[v0] sendRegistrationEmail called")
-  console.log("[v0] emailjsModule loaded:", !!emailjsModule)
-  console.log("[v0] SERVICE_ID:", EMAILJS_SERVICE_ID)
-  console.log("[v0] TEMPLATE_ID:", EMAILJS_TEMPLATE_ID)
-  
   if (!emailjsModule) {
-    console.log("[v0] Error: EmailJS not initialized")
     return { success: false, error: "EmailJS no está inicializado" }
   }
 
   if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID) {
-    console.log("[v0] Error: Missing config")
     return { success: false, error: "Configuración de email incompleta" }
   }
 
   try {
     const templateParams = formatEmailParams(data)
-    templateParams.to_email = "tricel.icc.2026@gmail.com"
     
-    console.log("[v0] Sending with params:", JSON.stringify(templateParams, null, 2))
+    // Log for debugging - verify all params are being sent correctly
+    console.log("[v0] EmailJS sending with params:")
+    console.log("[v0] - to_email:", templateParams.to_email)
+    console.log("[v0] - presidente_email:", templateParams.presidente_email)
+    console.log("[v0] - info_completa length:", templateParams.info_completa?.length)
+    console.log("[v0] - Full info_completa:", templateParams.info_completa)
     
-    const result = await emailjsModule.default.send(
+    await emailjsModule.default.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
       templateParams
     )
     
-    console.log("[v0] EmailJS result:", result)
+    console.log("[v0] Email sent successfully")
     return { success: true }
   } catch (error) {
-    console.error("[v0] EmailJS Failed:", error)
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    console.log("[v0] Error message:", errorMessage)
+    console.error("[v0] EmailJS Failed to send:", error)
     return { 
       success: false, 
-      error: errorMessage
+      error: error instanceof Error ? error.message : "Error al enviar email" 
     }
   }
 }
