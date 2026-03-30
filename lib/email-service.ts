@@ -50,6 +50,7 @@ export function isEmailJSReady(): boolean {
 
 // Format form data for email template
 function formatEmailParams(data: RegistrationFormData): EmailTemplateParams {
+  console.log("[v0] formatEmailParams received data:", JSON.stringify(data, null, 2))
   // Build the complete info string for {{info_completa}}
   let infoCompleta = `Nombre de la Lista: ${data.listName}
 
@@ -69,7 +70,7 @@ RUT: ${data.secretary.rut}
 Correo: ${data.secretary.email}`
 
   // Add additional members dynamically if present
-  if (data.additionalMembers.length > 0) {
+  if (data.additionalMembers && data.additionalMembers.length > 0) {
     infoCompleta += "\n\nMiembros adicionales:"
     data.additionalMembers.forEach((member) => {
       infoCompleta += `
@@ -80,6 +81,8 @@ RUT: ${member.rut}
 Correo: ${member.email}`
     })
   }
+
+  console.log("[v0] info_completa value:", infoCompleta)
 
   return {
     to_email: RECIPIENT_EMAIL,
