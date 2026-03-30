@@ -1,24 +1,28 @@
 "use client"
 
-import { InputHTMLAttributes } from "react"
+import { InputHTMLAttributes, useId } from "react"
 
 interface CyberInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   error?: string
 }
 
-export function CyberInput({ label, className, error, ...props }: CyberInputProps) {
+export function CyberInput({ label, className, error, id, ...props }: CyberInputProps) {
+  const generatedId = useId()
+  const inputId = id || generatedId
   const hasError = !!error
 
   return (
     <div className="relative group">
-      <label className="block text-[10px] text-[#4a9f5a] mb-1 tracking-wider uppercase">
+      <label htmlFor={inputId} className="block text-[10px] text-[#4a9f5a] mb-1 tracking-wider uppercase">
         <span className="text-[#00ff4150]">{'> '}</span>
         {label}
         {props.required && <span className="text-[#ff0040] ml-1">*</span>}
       </label>
       <div className="relative">
         <input
+          id={inputId}
+          name={inputId}
           {...props}
           className={`
             w-full bg-[#0a0a0a] border px-3 py-2.5
