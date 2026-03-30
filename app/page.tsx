@@ -30,7 +30,8 @@ interface FormErrors {
 type NotificationType = 'success' | 'error' | null
 
 export default function RegistrationPage() {
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [mounted, setMounted] = useState(false)
+  const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [additionalMembers, setAdditionalMembers] = useState<AdditionalMember[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [notification, setNotification] = useState<{ type: NotificationType; message: string } | null>(null)
@@ -52,6 +53,9 @@ export default function RegistrationPage() {
   const targetDate = new Date("2026-04-17T23:59:59")
   
   const getTimeRemaining = () => {
+    if (!currentTime) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: false }
+    }
     const now = currentTime.getTime()
     const total = targetDate.getTime() - now
     
@@ -71,6 +75,8 @@ export default function RegistrationPage() {
   const timeRemaining = getTimeRemaining()
 
   useEffect(() => {
+    setMounted(true)
+    setCurrentTime(new Date())
     const timer = setInterval(() => {
       setCurrentTime(new Date())
     }, 1000)
@@ -443,7 +449,7 @@ Hora: ${hora}
               <span className="text-[10px] text-[#4a9f5a] tracking-widest">TIEMPO_RESTANTE</span>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8" suppressHydrationWarning>
               {[
                 { label: "DÍAS", value: timeRemaining.days },
                 { label: "HORAS", value: timeRemaining.hours },
@@ -452,8 +458,8 @@ Hora: ${hora}
               ].map((item) => (
                 <div key={item.label} className="text-center">
                   <div className="border border-[#00ff4150] bg-[#0a0a0a] px-4 py-2 min-w-[70px]">
-                    <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono">
-                      {String(item.value).padStart(2, "0")}
+                    <div className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text font-mono" suppressHydrationWarning>
+                      {mounted ? String(item.value).padStart(2, "0") : "--"}
                     </div>
                   </div>
                   <div className="text-[8px] text-[#4a9f5a] mt-1 tracking-widest">{item.label}</div>
@@ -461,12 +467,12 @@ Hora: ${hora}
               ))}
             </div>
             
-            <div className="text-center mt-4 text-xs text-[#4a9f5a]">
+            <div className="text-center mt-4 text-xs text-[#4a9f5a]" suppressHydrationWarning>
               <span className="text-[#00ff4150]">{'<time>'}</span>
-              {currentTime.toLocaleString("es-CL", {
+              {mounted && currentTime ? currentTime.toLocaleString("es-CL", {
                 dateStyle: "full",
                 timeStyle: "medium"
-              })}
+              }) : "Cargando..."}
               <span className="text-[#00ff4150]">{'</time>'}</span>
             </div>
             
