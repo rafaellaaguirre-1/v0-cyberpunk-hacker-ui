@@ -50,42 +50,35 @@ export function isEmailJSReady(): boolean {
 
 // Format form data for email template - simplified version
 function formatEmailParams(data: RegistrationFormData): Record<string, string> {
-  // Build simple string with all info
-  const lines: string[] = []
-  
-  lines.push("LISTA: " + data.listName)
-  lines.push("")
-  lines.push("PRESIDENTE:")
-  lines.push("- Nombre: " + data.president.name)
-  lines.push("- RUT: " + data.president.rut)
-  lines.push("- Correo: " + data.president.email)
-  lines.push("")
-  lines.push("VICEPRESIDENTE:")
-  lines.push("- Nombre: " + data.vicePresident.name)
-  lines.push("- RUT: " + data.vicePresident.rut)
-  lines.push("- Correo: " + data.vicePresident.email)
-  lines.push("")
-  lines.push("SECRETARIO:")
-  lines.push("- Nombre: " + data.secretary.name)
-  lines.push("- RUT: " + data.secretary.rut)
-  lines.push("- Correo: " + data.secretary.email)
+  // Build simple string directly
+  let info_completa = "LISTA: " + String(data.listName || "")
+  info_completa += "\n\nPRESIDENTE:"
+  info_completa += "\n- Nombre: " + String(data.president?.name || "")
+  info_completa += "\n- RUT: " + String(data.president?.rut || "")
+  info_completa += "\n- Correo: " + String(data.president?.email || "")
+  info_completa += "\n\nVICEPRESIDENTE:"
+  info_completa += "\n- Nombre: " + String(data.vicePresident?.name || "")
+  info_completa += "\n- RUT: " + String(data.vicePresident?.rut || "")
+  info_completa += "\n- Correo: " + String(data.vicePresident?.email || "")
+  info_completa += "\n\nSECRETARIO:"
+  info_completa += "\n- Nombre: " + String(data.secretary?.name || "")
+  info_completa += "\n- RUT: " + String(data.secretary?.rut || "")
+  info_completa += "\n- Correo: " + String(data.secretary?.email || "")
   
   if (data.additionalMembers && data.additionalMembers.length > 0) {
-    lines.push("")
-    lines.push("MIEMBROS ADICIONALES:")
+    info_completa += "\n\nMIEMBROS ADICIONALES:"
     for (let i = 0; i < data.additionalMembers.length; i++) {
       const m = data.additionalMembers[i]
-      lines.push("- " + m.role + ": " + m.name + " | RUT: " + m.rut + " | Correo: " + m.email)
+      info_completa += "\n- " + String(m.role || "") + ": " + String(m.name || "") + " | RUT: " + String(m.rut || "") + " | Correo: " + String(m.email || "")
     }
   }
   
-  const infoCompleta = lines.join("\n")
+  console.log("INFO_COMPLETA FINAL:", info_completa)
   
-  console.log("INFO_COMPLETA FINAL:", infoCompleta)
+  const result = { info_completa: info_completa }
+  console.log("OBJETO ENVIADO:", JSON.stringify(result))
   
-  return {
-    info_completa: infoCompleta
-  }
+  return result
 }
 
 // Send registration email
