@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { Send } from "lucide-react"
+import { Send, Instagram } from "lucide-react"
 import { HudOverlay } from "@/components/hud-overlay"
 import { Header } from "@/components/layout/header"
 import { CountdownTimer } from "@/components/countdown-timer"
@@ -74,7 +74,10 @@ export default function RegistrationPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] relative overflow-x-hidden">
+    <main className="min-h-screen matrix-bg relative overflow-x-hidden">
+      {/* Dark overlay for readability */}
+      <div className="fixed inset-0 bg-[#0a0a0a]/85 pointer-events-none" />
+      
       <HudOverlay />
 
       {/* Notification */}
@@ -91,10 +94,10 @@ export default function RegistrationPage() {
         <Header />
 
         {/* Countdown Timer */}
-        <section className="my-8 border border-[#00ff4133] bg-[#0d1117] p-6">
+        <section className="my-8 border border-[#00ff4133] bg-[#0d1117]/90 p-6 backdrop-blur-sm">
           <CountdownTimer targetDate={DEADLINE} />
           <div className="text-center mt-4 text-[10px] text-[#4a9f5a]">
-            Periodo de inscripcion: 01 Abril - 17 Abril, 2026
+            Período de inscripción: 01 Abril - 17 Abril, 2026
           </div>
         </section>
 
@@ -104,13 +107,13 @@ export default function RegistrationPage() {
           <div className="flex items-center gap-4">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#00ff4150] to-transparent" />
             <h2 className="text-lg text-[#00ff41] tracking-wider">
-              {"<"} FORMULARIO DE INSCRIPCION {"/>"}
+              {"<"} FORMULARIO DE INSCRIPCIÓN {"/>"}
             </h2>
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#00ff4150] to-transparent" />
           </div>
 
           {/* List Name */}
-          <section className="border border-[#00ff4133] bg-[#0d1117] p-4">
+          <section className="border border-[#00ff4133] bg-[#0d1117]/90 p-4 backdrop-blur-sm">
             <CyberInput
               label="Nombre de la Lista"
               placeholder="Ingrese el nombre de su lista"
@@ -122,7 +125,7 @@ export default function RegistrationPage() {
           </section>
 
           {/* President Section */}
-          <section className="border border-[#00ff4133] bg-[#0d1117] p-4">
+          <section className="border border-[#00ff4133] bg-[#0d1117]/90 p-4 backdrop-blur-sm">
             <MemberFields
               title="PRESIDENTE/A"
               member={president}
@@ -132,7 +135,7 @@ export default function RegistrationPage() {
           </section>
 
           {/* Vice President Section */}
-          <section className="border border-[#00ff4133] bg-[#0d1117] p-4">
+          <section className="border border-[#00ff4133] bg-[#0d1117]/90 p-4 backdrop-blur-sm">
             <MemberFields
               title="VICEPRESIDENTE/A"
               member={vicePresident}
@@ -142,7 +145,7 @@ export default function RegistrationPage() {
           </section>
 
           {/* Secretary Section */}
-          <section className="border border-[#00ff4133] bg-[#0d1117] p-4">
+          <section className="border border-[#00ff4133] bg-[#0d1117]/90 p-4 backdrop-blur-sm">
             <MemberFields
               title="SECRETARIO/A"
               member={secretary}
@@ -152,7 +155,7 @@ export default function RegistrationPage() {
           </section>
 
           {/* Additional Members Section */}
-          <section className="border border-[#00ff4133] bg-[#0d1117] p-4">
+          <section className="border border-[#00ff4133] bg-[#0d1117]/90 p-4 backdrop-blur-sm">
             <AdditionalMembers
               members={additionalMembers}
               errors={errors.additionalMembers}
@@ -172,12 +175,13 @@ export default function RegistrationPage() {
               disabled={isSubmitting}
               className={`
                 group relative flex items-center gap-3 px-8 py-4 
-                border-2 border-[#00ff41] bg-transparent
+                border-2 border-[#00ff41] bg-[#0a0a0a]/80
                 text-[#00ff41] font-mono text-sm tracking-wider
                 transition-all duration-300
-                hover:bg-[#00ff4120] hover:shadow-[0_0_30px_#00ff4150]
+                hover:bg-[#00ff4120] 
                 disabled:opacity-50 disabled:cursor-not-allowed
-                disabled:hover:bg-transparent disabled:hover:shadow-none
+                disabled:hover:bg-transparent
+                ${!isSubmitting ? 'animate-green-flicker' : ''}
               `}
             >
               {/* Corner accents */}
@@ -187,21 +191,38 @@ export default function RegistrationPage() {
               <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#00ff41]" />
 
               <Send className={`w-5 h-5 ${isSubmitting ? "animate-pulse" : "group-hover:translate-x-1"} transition-transform`} />
-              <span>{isSubmitting ? "ENVIANDO..." : "ENVIAR CANDIDATURA"}</span>
+              <span>{isSubmitting ? "ENVIANDO..." : "ENVIAR LISTA"}</span>
             </button>
           </div>
         </form>
 
-        {/* Footer */}
-        <footer className="mt-12 pt-6 border-t border-[#00ff4130] text-center">
-          <p className="text-[10px] text-[#4a9f5a]">
-            <span className="text-[#00ff4150]">{"// "}</span>
-            TRICEL ICCI 2026 - Universidad Catolica Silva Henriquez
-            <span className="text-[#00ff4150]">{" //"}</span>
-          </p>
-          <p className="text-[8px] text-[#4a9f5a50] mt-1">
-            Sistema de Inscripcion de Candidaturas v1.0
-          </p>
+        {/* Footer with Instagram */}
+        <footer className="mt-12 pt-6 border-t border-[#00ff4130]">
+          {/* Instagram Section */}
+          <div className="flex flex-col items-center gap-4 mb-6">
+            <p className="text-xs text-[#4a9f5a]">Síguenos en Instagram</p>
+            <a
+              href="https://www.instagram.com/tricel.icci.2026?igsh=MW8yeTNiejV4MmFiZQ=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-6 py-3 border border-[#00ff4150] hover:border-[#00ff41] hover:bg-[#00ff4110] transition-all text-[#00ff41] group"
+            >
+              <Instagram className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <span className="font-mono text-sm">@tricel.icci.2026</span>
+            </a>
+          </div>
+
+          {/* Credits */}
+          <div className="text-center">
+            <p className="text-[10px] text-[#4a9f5a]">
+              <span className="text-[#00ff4150]">{"// "}</span>
+              TRICEL ICCI 2026 - Universidad Católica Silva Henríquez
+              <span className="text-[#00ff4150]">{" //"}</span>
+            </p>
+            <p className="text-[8px] text-[#4a9f5a50] mt-1">
+              Sistema de Inscripción de Candidaturas v2.0
+            </p>
+          </div>
         </footer>
       </div>
     </main>

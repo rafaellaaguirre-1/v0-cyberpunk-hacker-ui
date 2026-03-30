@@ -29,7 +29,7 @@ export async function initEmailJS(): Promise<boolean> {
 function formatEmailParams(data: RegistrationFormData): EmailTemplateParams {
   const additionalMembersText = data.additionalMembers.length > 0
     ? data.additionalMembers
-        .map((m, i) => `Integrante ${i + 1}: ${m.name} | RUT: ${m.rut} | Email: ${m.email}`)
+        .map((m, i) => `Integrante ${i + 1}: ${m.name} | Rol: ${m.role} | RUT: ${m.rut} | Email: ${m.email}`)
         .join("\n")
     : "Sin integrantes adicionales"
 

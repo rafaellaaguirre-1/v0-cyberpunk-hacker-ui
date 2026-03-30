@@ -191,3 +191,52 @@
 .terminal-font {
   font-family: 'Courier New', 'Lucida Console', Monaco, monospace;
 }
+
+/* Red flicker for danger/warning sections */
+@keyframes red-flicker {
+  0%, 100% { 
+    border-color: rgba(255, 0, 64, 0.5);
+    box-shadow: 0 0 5px rgba(255, 0, 64, 0.3);
+  }
+  25% { 
+    border-color: rgba(255, 0, 64, 0.7);
+    box-shadow: 0 0 10px rgba(255, 0, 64, 0.5);
+  }
+  50% { 
+    border-color: rgba(255, 0, 64, 0.4);
+    box-shadow: 0 0 3px rgba(255, 0, 64, 0.2);
+  }
+  75% { 
+    border-color: rgba(255, 0, 64, 0.8);
+    box-shadow: 0 0 15px rgba(255, 0, 64, 0.4);
+  }
+}
+
+.animate-red-flicker {
+  animation: red-flicker 3s ease-in-out infinite;
+}
+
+/* Green flicker for submit button */
+@keyframes green-flicker {
+  0%, 100% { 
+    box-shadow: 0 0 5px #00ff41, 0 0 10px rgba(0, 255, 65, 0.3);
+  }
+  33% { 
+    box-shadow: 0 0 10px #00ff41, 0 0 20px rgba(0, 255, 65, 0.5), 0 0 30px rgba(0, 255, 65, 0.2);
+  }
+  66% { 
+    box-shadow: 0 0 3px #00ff41, 0 0 8px rgba(0, 255, 65, 0.2);
+  }
+}
+
+.animate-green-flicker {
+  animation: green-flicker 2s ease-in-out infinite;
+}
+
+/* Matrix background */
+.matrix-bg {
+  background-image: url('/images/matrix.gif');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}

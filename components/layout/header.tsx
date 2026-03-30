@@ -14,20 +14,20 @@ export function Header() {
               TRICEL ICCI 2026
             </h1>
             <p className="text-[10px] text-[#4a9f5a] tracking-widest">
-              UNIVERSIDAD CATOLICA SILVA HENRIQUEZ
+              UNIVERSIDAD CATÓLICA SILVA HENRÍQUEZ
             </p>
           </div>
         </div>
 
         {/* Social Links */}
         <a
-          href="https://instagram.com/tricel.icci"
+          href="https://www.instagram.com/tricel.icci.2026?igsh=MW8yeTNiejV4MmFiZQ=="
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 px-3 py-1.5 border border-[#00ff4150] hover:border-[#00ff41] hover:bg-[#00ff4110] transition-all text-[#00ff41] text-xs"
         >
           <Instagram className="w-4 h-4" />
-          <span>@tricel.icci</span>
+          <span>@tricel.icci.2026</span>
         </a>
       </div>
 
@@ -35,7 +35,7 @@ export function Header() {
       <div className="mt-6 text-center">
         <h2 className="text-2xl md:text-3xl font-bold text-[#00ff41] neon-text tracking-wider">
           <span className="text-[#00ff4150]">{"<"}</span>
-          INSCRIPCION DE CANDIDATURAS
+          INSCRIPCIÓN DE CANDIDATURAS
           <span className="text-[#00ff4150]">{"/>"}</span>
         </h2>
         <p className="text-[#4a9f5a] text-sm mt-2 tracking-wide">

@@ -7,6 +7,9 @@ import type { Member, AdditionalMember, Notification, RegistrationFormData } fro
 // Initial empty member
 const emptyMember: Member = { name: "", rut: "", email: "" }
 
+// Field type for additional members (includes role)
+type AdditionalMemberField = keyof Member | "role"
+
 // Generate unique ID
 const generateId = () => Math.random().toString(36).substring(2, 9)
 
@@ -54,7 +57,7 @@ export function useRegistrationForm() {
   // Additional members management
   const addMember = useCallback(() => {
     if (additionalMembers.length >= 4) return
-    setAdditionalMembers((prev) => [...prev, { id: generateId(), ...emptyMember }])
+    setAdditionalMembers((prev) => [...prev, { id: generateId(), ...emptyMember, role: "" }])
   }, [additionalMembers.length])
 
   const removeMember = useCallback((id: string) => {
@@ -65,7 +68,7 @@ export function useRegistrationForm() {
     })
   }, [])
 
-  const updateAdditionalMember = useCallback((id: string, field: keyof Member, value: string) => {
+  const updateAdditionalMember = useCallback((id: string, field: AdditionalMemberField, value: string) => {
     setAdditionalMembers((prev) =>
       prev.map((m) => (m.id === id ? { ...m, [field]: value } : m))
     )
@@ -118,9 +121,15 @@ export function useRegistrationForm() {
       newErrors.listName = "Nombre de lista debe tener al menos 3 caracteres"
     }
 
-    // Validate additional members
+    // Validate additional members (including role)
     additionalMembers.forEach((member) => {
-      const memberErrors = validateMember(member)
+      const memberErrors: Record<string, string> = { ...validateMember(member) }
+      // Validate role for additional members
+      if (!member.role || !member.role.trim()) {
+        memberErrors.role = "Rol es requerido"
+      } else if (member.role.trim().length < 2) {
+        memberErrors.role = "Rol debe tener al menos 2 caracteres"
+      }
       if (Object.keys(memberErrors).length > 0) {
         newErrors.additionalMembers[member.id] = memberErrors
       }

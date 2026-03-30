@@ -5,9 +5,10 @@ export interface Member {
   email: string
 }
 
-// Additional member with optional fields
+// Additional member with role field
 export interface AdditionalMember extends Member {
   id: string
+  role: string
 }
 
 // Form data structure

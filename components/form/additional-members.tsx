@@ -3,14 +3,16 @@
 import { Plus, Trash2 } from "lucide-react"
 import { CyberInput } from "@/components/cyber-input"
 import { formatRut } from "@/lib/rut-utils"
-import type { AdditionalMember, Member } from "@/types"
+import type { AdditionalMember } from "@/types"
+
+type MemberField = "name" | "role" | "rut" | "email"
 
 interface AdditionalMembersProps {
   members: AdditionalMember[]
-  errors: Record<string, Partial<Record<keyof Member, string>>>
+  errors: Record<string, Partial<Record<MemberField, string>>>
   onAdd: () => void
   onRemove: (id: string) => void
-  onChange: (id: string, field: keyof Member, value: string) => void
+  onChange: (id: string, field: MemberField, value: string) => void
   maxMembers?: number
 }
 
@@ -72,13 +74,22 @@ export function AdditionalMembers({
                 </button>
               </div>
               
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2">
                 <CyberInput
                   label="Nombre Completo"
                   placeholder="Ingresa nombre completo"
                   value={member.name}
                   onChange={(e) => onChange(member.id, "name", e.target.value)}
                   error={errors[member.id]?.name}
+                  required
+                />
+                
+                <CyberInput
+                  label="Rol"
+                  placeholder="Ej: Tesorero, Vocal, Delegado"
+                  value={member.role}
+                  onChange={(e) => onChange(member.id, "role", e.target.value)}
+                  error={errors[member.id]?.role}
                   required
                 />
                 
