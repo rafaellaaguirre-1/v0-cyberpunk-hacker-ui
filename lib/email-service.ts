@@ -48,63 +48,43 @@ export function isEmailJSReady(): boolean {
   return isInitialized && emailjsModule !== null
 }
 
-// Format form data for email template
-function formatEmailParams(data: RegistrationFormData): EmailTemplateParams {
-  console.log("[v0] formatEmailParams received data:", JSON.stringify(data, null, 2))
-  // Build the complete info string for {{info_completa}}
-  let infoCompleta = `Nombre de la Lista: ${data.listName}
-
-Presidente/a:
-Nombre: ${data.president.name}
-RUT: ${data.president.rut}
-Correo: ${data.president.email}
-
-Vicepresidente/a:
-Nombre: ${data.vicePresident.name}
-RUT: ${data.vicePresident.rut}
-Correo: ${data.vicePresident.email}
-
-Secretario/a:
-Nombre: ${data.secretary.name}
-RUT: ${data.secretary.rut}
-Correo: ${data.secretary.email}`
-
-  // Add additional members dynamically if present
+// Format form data for email template - simplified version
+function formatEmailParams(data: RegistrationFormData): Record<string, string> {
+  // Build simple string with all info
+  const lines: string[] = []
+  
+  lines.push("LISTA: " + data.listName)
+  lines.push("")
+  lines.push("PRESIDENTE:")
+  lines.push("- Nombre: " + data.president.name)
+  lines.push("- RUT: " + data.president.rut)
+  lines.push("- Correo: " + data.president.email)
+  lines.push("")
+  lines.push("VICEPRESIDENTE:")
+  lines.push("- Nombre: " + data.vicePresident.name)
+  lines.push("- RUT: " + data.vicePresident.rut)
+  lines.push("- Correo: " + data.vicePresident.email)
+  lines.push("")
+  lines.push("SECRETARIO:")
+  lines.push("- Nombre: " + data.secretary.name)
+  lines.push("- RUT: " + data.secretary.rut)
+  lines.push("- Correo: " + data.secretary.email)
+  
   if (data.additionalMembers && data.additionalMembers.length > 0) {
-    infoCompleta += "\n\nMiembros adicionales:"
-    data.additionalMembers.forEach((member) => {
-      infoCompleta += `
-
-Rol: ${member.role}
-Nombre: ${member.name}
-RUT: ${member.rut}
-Correo: ${member.email}`
-    })
+    lines.push("")
+    lines.push("MIEMBROS ADICIONALES:")
+    for (let i = 0; i < data.additionalMembers.length; i++) {
+      const m = data.additionalMembers[i]
+      lines.push("- " + m.role + ": " + m.name + " | RUT: " + m.rut + " | Correo: " + m.email)
+    }
   }
-
-  console.log("DATA FORM:", data);
-  console.log("INFO_COMPLETA:", infoCompleta);
-  console.log("PARAMS QUE SE ENVIAN:", {
-    info_completa: infoCompleta
-  });
-
+  
+  const infoCompleta = lines.join("\n")
+  
+  console.log("INFO_COMPLETA FINAL:", infoCompleta)
+  
   return {
-    to_email: RECIPIENT_EMAIL,
-    nombre_lista: data.listName,
-    info_completa: infoCompleta,
-    presidente_nombre: data.president.name,
-    presidente_rut: data.president.rut,
-    presidente_correo: data.president.email,
-    vicepresidente_nombre: data.vicePresident.name,
-    vicepresidente_rut: data.vicePresident.rut,
-    vicepresidente_correo: data.vicePresident.email,
-    secretario_nombre: data.secretary.name,
-    secretario_rut: data.secretary.rut,
-    secretario_correo: data.secretary.email,
-    submission_date: new Date().toLocaleString("es-CL", {
-      dateStyle: "full",
-      timeStyle: "medium",
-    }),
+    info_completa: infoCompleta
   }
 }
 
@@ -130,16 +110,17 @@ export async function sendRegistrationEmail(
   }
 
   try {
-    const templateParams = formatEmailParams(data)
-    console.log("[v0] Sending email with params:", JSON.stringify(templateParams, null, 2))
+    const params = formatEmailParams(data)
+    
+    console.log("ENVIANDO A EMAILJS:", params)
     
     const response = await emailjsModule!.default.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
-      templateParams as unknown as Record<string, unknown>
+      params
     )
     
-    console.log("[v0] EmailJS response:", response)
+    console.log("RESPUESTA EMAILJS:", response)
     return { success: true }
   } catch (error) {
     console.error("[v0] EmailJS failed to send:", error)
