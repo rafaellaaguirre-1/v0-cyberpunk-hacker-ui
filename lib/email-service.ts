@@ -82,7 +82,11 @@ Correo: ${member.email}`
     })
   }
 
-  console.log("[v0] info_completa value:", infoCompleta)
+  console.log("DATA FORM:", data);
+  console.log("INFO_COMPLETA:", infoCompleta);
+  console.log("PARAMS QUE SE ENVIAN:", {
+    info_completa: infoCompleta
+  });
 
   return {
     to_email: RECIPIENT_EMAIL,
