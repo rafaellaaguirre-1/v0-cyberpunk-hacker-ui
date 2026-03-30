@@ -7,22 +7,45 @@ const EMAILJS_TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || ""
 const RECIPIENT_EMAIL = process.env.NEXT_PUBLIC_RECIPIENT_EMAIL || "tricel.icc.2026@gmail.com"
 
 let emailjsModule: typeof import("@emailjs/browser") | null = null
+let isInitialized = false
 
 // Initialize EmailJS (call this once on mount)
 export async function initEmailJS(): Promise<boolean> {
+  console.log("[v0] EmailJS init starting...")
+  console.log("[v0] EMAILJS_PUBLIC_KEY exists:", !!EMAILJS_PUBLIC_KEY)
+  console.log("[v0] EMAILJS_SERVICE_ID exists:", !!EMAILJS_SERVICE_ID)
+  console.log("[v0] EMAILJS_TEMPLATE_ID exists:", !!EMAILJS_TEMPLATE_ID)
+  
   if (!EMAILJS_PUBLIC_KEY) {
-    console.error("[EmailJS] Public key not configured")
+    console.error("[v0] EmailJS Public key not configured - check NEXT_PUBLIC_EMAILJS_PUBLIC_KEY")
+    return false
+  }
+  
+  if (!EMAILJS_SERVICE_ID) {
+    console.error("[v0] EmailJS Service ID not configured - check NEXT_PUBLIC_EMAILJS_SERVICE_ID")
+    return false
+  }
+  
+  if (!EMAILJS_TEMPLATE_ID) {
+    console.error("[v0] EmailJS Template ID not configured - check NEXT_PUBLIC_EMAILJS_TEMPLATE_ID")
     return false
   }
   
   try {
     emailjsModule = await import("@emailjs/browser")
     emailjsModule.default.init(EMAILJS_PUBLIC_KEY)
+    isInitialized = true
+    console.log("[v0] EmailJS initialized successfully!")
     return true
   } catch (error) {
-    console.error("[EmailJS] Failed to initialize:", error)
+    console.error("[v0] EmailJS failed to initialize:", error)
     return false
   }
+}
+
+// Check if EmailJS is ready
+export function isEmailJSReady(): boolean {
+  return isInitialized && emailjsModule !== null
 }
 
 // Format form data for email template
@@ -82,29 +105,41 @@ Correo: ${member.email}`
 export async function sendRegistrationEmail(
   data: RegistrationFormData
 ): Promise<{ success: boolean; error?: string }> {
-  if (!emailjsModule) {
-    return { success: false, error: "EmailJS no está inicializado" }
+  console.log("[v0] sendRegistrationEmail called")
+  console.log("[v0] emailjsModule exists:", !!emailjsModule)
+  console.log("[v0] isInitialized:", isInitialized)
+  
+  if (!emailjsModule || !isInitialized) {
+    console.error("[v0] EmailJS not initialized - attempting to initialize now...")
+    const initialized = await initEmailJS()
+    if (!initialized) {
+      return { success: false, error: "EmailJS no está inicializado. Verifica las variables de entorno." }
+    }
   }
 
   if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID) {
+    console.error("[v0] Missing config - SERVICE_ID:", !!EMAILJS_SERVICE_ID, "TEMPLATE_ID:", !!EMAILJS_TEMPLATE_ID)
     return { success: false, error: "Configuración de email incompleta" }
   }
 
   try {
     const templateParams = formatEmailParams(data)
+    console.log("[v0] Sending email with params:", JSON.stringify(templateParams, null, 2))
     
-    await emailjsModule.default.send(
+    const response = await emailjsModule!.default.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
       templateParams as unknown as Record<string, unknown>
     )
     
+    console.log("[v0] EmailJS response:", response)
     return { success: true }
   } catch (error) {
-    console.error("[EmailJS] Failed to send:", error)
+    console.error("[v0] EmailJS failed to send:", error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : "Error al enviar email" 
+      error: `Error al enviar email: ${errorMessage}` 
     }
   }
 }
