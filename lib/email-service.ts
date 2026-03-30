@@ -86,11 +86,18 @@ Correo: ${member.email}`
 export async function sendRegistrationEmail(
   data: RegistrationFormData
 ): Promise<{ success: boolean; error?: string }> {
+  console.log("[v0] sendRegistrationEmail called")
+  console.log("[v0] emailjsModule loaded:", !!emailjsModule)
+  console.log("[v0] SERVICE_ID:", EMAILJS_SERVICE_ID)
+  console.log("[v0] TEMPLATE_ID:", EMAILJS_TEMPLATE_ID)
+  
   if (!emailjsModule) {
+    console.log("[v0] Error: EmailJS not initialized")
     return { success: false, error: "EmailJS no está inicializado" }
   }
 
   if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID) {
+    console.log("[v0] Error: Missing config")
     return { success: false, error: "Configuración de email incompleta" }
   }
 
@@ -98,18 +105,23 @@ export async function sendRegistrationEmail(
     const templateParams = formatEmailParams(data)
     templateParams.to_email = "tricel.icc.2026@gmail.com"
     
-    await emailjsModule.default.send(
+    console.log("[v0] Sending with params:", JSON.stringify(templateParams, null, 2))
+    
+    const result = await emailjsModule.default.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
       templateParams
     )
     
+    console.log("[v0] EmailJS result:", result)
     return { success: true }
   } catch (error) {
-    console.error("[EmailJS] Failed:", error)
+    console.error("[v0] EmailJS Failed:", error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.log("[v0] Error message:", errorMessage)
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : "Error al enviar email" 
+      error: errorMessage
     }
   }
 }
