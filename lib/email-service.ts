@@ -26,7 +26,7 @@ export async function initEmailJS(): Promise<boolean> {
 }
 
 // Format form data for email template
-function formatEmailParams(data: RegistrationFormData): EmailTemplateParams {
+function formatEmailParams(data: RegistrationFormData): Record<string, string> {
   // Build the complete info string for {{info_completa}}
   let infoCompleta = `Nombre de la Lista: ${data.listName}
 
@@ -58,10 +58,15 @@ Correo: ${member.email}`
     })
   }
 
+  // Return params matching EXACTLY the EmailJS template variables
   return {
-    to_email: RECIPIENT_EMAIL,
-    nombre_lista: data.listName,
+    // Primary recipient (tricel) and CC to president
+    to_email: "tricel.icc.2026@gmail.com",
+    presidente_email: data.president.email,
+    // Complete info block
     info_completa: infoCompleta,
+    // Individual fields for flexibility
+    nombre_lista: data.listName,
     presidente_nombre: data.president.name,
     presidente_rut: data.president.rut,
     presidente_correo: data.president.email,
@@ -78,7 +83,7 @@ Correo: ${member.email}`
   }
 }
 
-// Send registration email to both tricel and president
+// Send registration email
 export async function sendRegistrationEmail(
   data: RegistrationFormData
 ): Promise<{ success: boolean; error?: string }> {
@@ -93,40 +98,23 @@ export async function sendRegistrationEmail(
   try {
     const templateParams = formatEmailParams(data)
     
-    // Log for debugging - verify info_completa is being sent
-    console.log("[v0] EmailJS template params:", JSON.stringify(templateParams, null, 2))
+    // Log for debugging - verify all params are being sent correctly
+    console.log("[v0] EmailJS sending with params:")
+    console.log("[v0] - to_email:", templateParams.to_email)
+    console.log("[v0] - presidente_email:", templateParams.presidente_email)
+    console.log("[v0] - info_completa length:", templateParams.info_completa?.length)
+    console.log("[v0] - Full info_completa:", templateParams.info_completa)
     
-    // Send to tricel email
-    const tricelParams = {
-      ...templateParams,
-      to_email: "tricel.icc.2026@gmail.com",
-    }
-    
-    console.log("[v0] Sending email to tricel:", tricelParams.to_email)
     await emailjsModule.default.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
-      tricelParams as unknown as Record<string, unknown>
+      templateParams
     )
     
-    // Send copy to president email
-    if (data.president.email) {
-      const presidentParams = {
-        ...templateParams,
-        to_email: data.president.email,
-      }
-      
-      console.log("[v0] Sending email to president:", presidentParams.to_email)
-      await emailjsModule.default.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        presidentParams as unknown as Record<string, unknown>
-      )
-    }
-    
+    console.log("[v0] Email sent successfully")
     return { success: true }
   } catch (error) {
-    console.error("[EmailJS] Failed to send:", error)
+    console.error("[v0] EmailJS Failed to send:", error)
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Error al enviar email" 
