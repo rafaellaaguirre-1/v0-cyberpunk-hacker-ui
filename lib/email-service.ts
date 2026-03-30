@@ -78,7 +78,7 @@ Correo: ${member.email}`
   }
 }
 
-// Send registration email
+// Send registration email to both tricel and president
 export async function sendRegistrationEmail(
   data: RegistrationFormData
 ): Promise<{ success: boolean; error?: string }> {
@@ -93,11 +93,36 @@ export async function sendRegistrationEmail(
   try {
     const templateParams = formatEmailParams(data)
     
+    // Log for debugging - verify info_completa is being sent
+    console.log("[v0] EmailJS template params:", JSON.stringify(templateParams, null, 2))
+    
+    // Send to tricel email
+    const tricelParams = {
+      ...templateParams,
+      to_email: "tricel.icc.2026@gmail.com",
+    }
+    
+    console.log("[v0] Sending email to tricel:", tricelParams.to_email)
     await emailjsModule.default.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
-      templateParams as unknown as Record<string, unknown>
+      tricelParams as unknown as Record<string, unknown>
     )
+    
+    // Send copy to president email
+    if (data.president.email) {
+      const presidentParams = {
+        ...templateParams,
+        to_email: data.president.email,
+      }
+      
+      console.log("[v0] Sending email to president:", presidentParams.to_email)
+      await emailjsModule.default.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        presidentParams as unknown as Record<string, unknown>
+      )
+    }
     
     return { success: true }
   } catch (error) {
