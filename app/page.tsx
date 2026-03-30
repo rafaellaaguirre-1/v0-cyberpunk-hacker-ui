@@ -47,6 +47,7 @@ export default function RegistrationPage() {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log("[v0] handleSubmit called")
 
     if (!validateForm()) {
       showNotification("error", "Por favor, corrige los errores antes de enviar")
@@ -54,19 +55,24 @@ export default function RegistrationPage() {
     }
 
     setIsSubmitting(true)
+    console.log("[v0] Form validated, submitting...")
 
     try {
       const formData = getFormData()
+      console.log("[v0] Form data:", JSON.stringify(formData, null, 2))
+      
       const result = await sendRegistrationEmail(formData)
+      console.log("[v0] Email result:", result)
 
       if (result.success) {
         showNotification("success", "Candidatura enviada correctamente")
         resetForm()
       } else {
+        console.log("[v0] Email failed with error:", result.error)
         showNotification("error", result.error || "Error al enviar la candidatura")
       }
     } catch (error) {
-      console.error("Submit error:", error)
+      console.error("[v0] Submit catch error:", error)
       showNotification("error", "Error al enviar la candidatura. Por favor, intente nuevamente.")
     } finally {
       setIsSubmitting(false)
