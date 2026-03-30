@@ -11,7 +11,7 @@ import { AdditionalMembers } from "@/components/form/additional-members"
 import { RulesPanel } from "@/components/rules-panel"
 import { Notification } from "@/components/notification"
 import { useRegistrationForm } from "@/hooks/use-registration-form"
-import { initEmailJS, sendRegistrationEmail } from "@/lib/email-service"
+import { initEmailJS, sendRegistrationEmail, isEmailJSReady } from "@/lib/email-service"
 
 // Deadline for registration
 const DEADLINE = new Date("2026-04-17T23:59:59")
@@ -41,23 +41,38 @@ export default function RegistrationPage() {
 
   // Initialize EmailJS on mount
   useEffect(() => {
-    initEmailJS()
+    const init = async () => {
+      console.log("[v0] Initializing EmailJS on page mount...")
+      const success = await initEmailJS()
+      if (!success) {
+        console.error("[v0] EmailJS initialization failed on mount")
+      }
+    }
+    init()
   }, [])
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log("[v0] Form submit triggered")
 
     if (!validateForm()) {
+      console.log("[v0] Form validation failed")
       showNotification("error", "Por favor, corrige los errores antes de enviar")
       return
     }
 
+    console.log("[v0] Form validation passed")
+    console.log("[v0] EmailJS ready status:", isEmailJSReady())
+    
     setIsSubmitting(true)
 
     try {
       const formData = getFormData()
+      console.log("[v0] Form data prepared:", JSON.stringify(formData, null, 2))
+      
       const result = await sendRegistrationEmail(formData)
+      console.log("[v0] Email send result:", result)
 
       if (result.success) {
         showNotification("success", "Candidatura enviada correctamente")
@@ -66,7 +81,7 @@ export default function RegistrationPage() {
         showNotification("error", result.error || "Error al enviar la candidatura")
       }
     } catch (error) {
-      console.error("Submit error:", error)
+      console.error("[v0] Submit error:", error)
       showNotification("error", "Error al enviar la candidatura. Por favor, intente nuevamente.")
     } finally {
       setIsSubmitting(false)
